@@ -21,4 +21,15 @@ class BasePage(object):
         WebDriverWait(self.driver, timeout).until(
             EC.element_to_be_clickable(locator)
         )
-        return EC.presence_of_all_elements_located(locator)
+        return self.driver.find_elements(locator[0], locator[1])
+
+    def findAndTypeInto(self, locator, text):
+        element = self.waitForElement(locator)
+        assert(element is not None)
+        element.clear()
+        element.send_keys(text)
+
+    def findAndClick(self, locator):
+        element = self.waitForElement(locator)
+        assert(element is not None)
+        element.click()

@@ -8,8 +8,5 @@ class WelcomePage(BasePage):
     def __init__(self, driver):
         BasePage.__init__(self, driver)
 
-        self.loginButton = self.waitForElement(WelcomePage.loginButtonLocator)
-        assert(self.loginButton is not None)
-
     def clickLogin(self):
-        self.loginButton.click()
+        self.findAndClick(WelcomePage.loginButtonLocator)

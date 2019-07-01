@@ -7,31 +7,17 @@ class LoginPage(BasePage):
     loginButtonLocator = (By.CSS_SELECTOR, "#login-page .button-login")
     cancelButtonLocator = (By.CSS_SELECTOR, "#login-page .button-cancel")
 
-    def __init__(self, driver):
-        BasePage.__init__(self, driver)
-
-        self.usernameField = self.waitForElement(LoginPage.usernameFieldLocator)
-        assert(self.usernameField is not None)
-        self.passwordField = self.waitForElement(LoginPage.passwordFieldLocator)
-        assert(self.passwordField is not None)
-        self.loginButton = self.waitForElement(LoginPage.loginButtonLocator)
-        assert(self.loginButton is not None)
-        self.cancelButton = self.waitForElement(LoginPage.cancelButtonLocator)
-        assert(self.cancelButton is not None)
-
     def enterUsername(self, username):
-        self.usernameField.clear()
-        self.usernameField.send_keys(username)
+        self.findAndTypeInto(LoginPage.usernameFieldLocator, username)
 
     def enterPassword(self, password):
-        self.passwordField.clear()
-        self.passwordField.send_keys(password)
+        self.findAndTypeInto(LoginPage.passwordFieldLocator, password)
 
     def clickLogin(self):
-        self.loginButton.click()
+        self.findAndClick(LoginPage.loginButtonLocator)
 
     def clickCancel(self):
-        self.cancelButton.click()
+        self.findAndClick(LoginPage.cancelButtonLocator)
 
     def submitCredentials(self, username, password):
         self.enterUsername(username)
