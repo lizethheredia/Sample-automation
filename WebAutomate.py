@@ -4,41 +4,75 @@ import re
 driver = webdriver.Firefox()
 driver.implicitly_wait(3)
 
-driver.get("http://testapp.galenframework.com")
+def getInitialPage(driver):
+    driver.get("http://testapp.galenframework.com")
 
-# Log in
-preLoginButton = driver.find_element_by_css_selector("#welcome-page .button-login")
-preLoginButton.click()
+def submitCredentials(driver, username, password):
+    preLoginButton = driver.find_element_by_css_selector("#welcome-page .button-login")
+    assert(preLoginButton is not None)
+    preLoginButton.click()
 
-userField = driver.find_element_by_name("login.username")
-passField = driver.find_element_by_name("login.password")
+    userField = driver.find_element_by_name("login.username")
+    assert(userField is not None)
+    passField = driver.find_element_by_name("login.password")
+    assert(passField is not None)
 
-userField.send_keys("testuser@example.com")
-passField.send_keys("test123")
+    userField.clear()
+    passField.clear()
 
-loginButton = driver.find_element_by_css_selector("#login-page .button-login")
-loginButton.click()
+    userField.send_keys(username)
+    passField.send_keys(password)
 
-# Add note
-addNoteButton = driver.find_element_by_css_selector("#my-notes-page button.btn-primary")
-addNoteButton.click()
+    loginButton = driver.find_element_by_css_selector("#login-page .button-login")
+    assert(loginButton is not None)
+    loginButton.click()
 
-noteTitleField = driver.find_element_by_name("note.title")
-noteDescriptionField = driver.find_element_by_name("note.description")
-submitNoteButton = driver.find_element_by_css_selector("#ad-note-page .btn-primary")
+def addNote(driver, noteTitle, noteDescription):
+    addNoteButton = driver.find_element_by_css_selector("#my-notes-page button.btn-primary")
+    assert(addNoteButton is not None)
+    addNoteButton.click()
 
-noteTitleField.send_keys("C flat")
-noteDescriptionField.send_keys("Not actually a note, it would be B")
+    noteTitleField = driver.find_element_by_name("note.title")
+    assert(noteTitleField is not None)
+    noteDescriptionField = driver.find_element_by_name("note.description")
+    assert(noteDescriptionField is not None)
+    submitNoteButton = driver.find_element_by_css_selector("#ad-note-page .btn-primary")
+    assert(submitNoteButton is not None)
 
-submitNoteButton.click()
+    noteTitleField.clear()
+    noteDescriptionField.clear()
 
-# Verify note was added
-notes = driver.find_elements_by_css_selector("#my-notes-page .list-group-item")
-theDesiredNote = None
-for note in notes:
-    if re.search("C flat", note.text):
-        theDesiredNote = note
+    noteTitleField.send_keys(noteTitle)
+    noteDescriptionField.send_keys(noteDescription)
 
-assert(theDesiredNote is not None)
+    submitNoteButton.click()
+
+def containsNote(driver, titleToCheck, descriptionToCheck):
+    notes = driver.find_elements_by_css_selector("#my-notes-page .list-group-item")
+    assert(notes is not None)
+
+    theDesiredNote = None
+    for note in notes:
+        title = note.find_element_by_css_selector("h4.list-group-item-heading")
+        assert(title is not None)
+        description = note.find_element_by_css_selector("p.list-group-item-text")
+        assert(description is not None)
+
+        if title.text == titleToCheck and description.text == descriptionToCheck:
+            theDesiredNote = note
+            break
+
+    return True if theDesiredNote is not None else False
+
+#Requires the driver to be on the notes page
+def testNote(driver, noteTitle, noteDescription):
+    addNote(driver, noteTitle, noteDescription)
+    assert(containsNote(driver, noteTitle, noteDescription))
+
+
+getInitialPage(driver)
+submitCredentials(driver, "testuser@example.com", "test123")
+testNote(driver, "C flat", "Not actually a note; would be B")
+testNote(driver, "<script>alert('foo');</script>", "Is this vulnerable to html injection?")
 
 driver.close()
